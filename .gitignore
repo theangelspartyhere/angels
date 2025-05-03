@@ -1,0 +1,7 @@
+Builds/
+JuceLibraryCode/
+
+angels.jucer
+
+.DS_Store
+.cache
