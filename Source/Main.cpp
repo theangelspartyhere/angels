@@ -4,18 +4,18 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
+
 class NewProjectApplication : public juce::JUCEApplication
 {
 public:
-    //==============================================================================
+    
     NewProjectApplication() {}
 
     const juce::String getApplicationName() override { return ProjectInfo::projectName; }
     const juce::String getApplicationVersion() override { return ProjectInfo::versionString; }
     bool moreThanOneInstanceAllowed() override { return true; }
 
-    //==============================================================================
+    
     void initialise(const juce::String& commandLine) override
     {
         // This method is where you should put your application's initialisation code..
@@ -27,7 +27,7 @@ public:
     {
         // Add your application's shutdown code here..
 
-        mainWindow = nullptr; // (deletes our window)
+        mainWindow = nullptr; // (deletes  window)
     }
 
     //==============================================================================

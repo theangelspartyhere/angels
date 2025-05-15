@@ -32,38 +32,38 @@ public:
 
 
 private:
-    // Parameters
+    
     float rotationX = 0.0f;
     float rotationY = 0.0f;
     float lastMouseX = 0.0f;
     float lastMouseY = 0.0f;
     bool isDragging = false;
 
-    float cubeSize = 1.0f;                          // Default cube size
-    juce::Colour cubeColor = juce::Colours::red;    // Default cube color
+    float cubeSize = 1.0f;                          // default cube size
+    juce::Colour cubeColor = juce::Colours::red;    // def cube color
     float dampValue = 0.0f;                         // DAMP parameter (0.0 to 1.0)
     float widthValue = 0.0f;                        // WIDTH parameter (0.0 to 1.0)
-    float greenCubeAlpha = 0.5f;                    // Alpha value for green cube transparency (0.0 to 1.0)
+    float greenCubeAlpha = 0.5f;                    // alpha value for green cube  (0.0 to 1.0)
 
-    // Shader programs
-    std::unique_ptr<juce::OpenGLShaderProgram> cubeShaderProgram;        // For rendering the cube
-    std::unique_ptr<juce::OpenGLShaderProgram> motionBlurShaderProgram;  // For applying motion blur
-    std::unique_ptr<juce::OpenGLShaderProgram> blurShaderProgram;        // For applying basic blur
+    // shader programs
+    std::unique_ptr<juce::OpenGLShaderProgram> cubeShaderProgram;        // rendering the cube
+    std::unique_ptr<juce::OpenGLShaderProgram> motionBlurShaderProgram;  //  applying motion blur
+    std::unique_ptr<juce::OpenGLShaderProgram> blurShaderProgram;        //  applying basic blur
 
-    // Cube shader uniforms and attributes
+    // cube shader uniforms and attributes
     std::unique_ptr<juce::OpenGLShaderProgram::Attribute> cubePositionAttribute;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> cubeProjectionMatrixUniform;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> cubeModelViewMatrixUniform;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> cubePrevModelViewMatrixUniform;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> cubeColorUniform;
-    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> cubeAlphaUniform; // Alpha uniform for transparency
+    std::unique_ptr<juce::OpenGLShaderProgram::Uniform> cubeAlphaUniform; // alpha uniform for transparency
 
-    // Motion blur shader uniforms and attributes
+    // motion blur shader uniforms and attributes
     std::unique_ptr<juce::OpenGLShaderProgram::Attribute> quadPositionAttribute;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> motionBlurColorTextureUniform;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> motionBlurMotionTextureUniform;
 
-    // Blur shader uniforms and attributes
+    // blur shader uniforms and attributes
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> blurTextureUniform;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> blurDampUniform;
     std::unique_ptr<juce::OpenGLShaderProgram::Uniform> blurDirectionUniform;
@@ -73,24 +73,24 @@ private:
     GLuint cubeEBO = 0;
     GLuint numIndices = 0;
 
-    // Framebuffers and textures
+    // framebuffers and textures
     GLuint sceneFBO = 0;
     GLuint colorTexture = 0;
     GLuint motionTexture = 0;
     GLuint blurFBO = 0;
     GLuint blurTexture = 0;
 
-    // Quad for rendering
+    // quad for rendering
     GLuint quadVAO = 0;
     GLuint quadVBO = 0;
 
-    // Transformation matrices
-    juce::Matrix3D<float> modelViewMatrix;                // Current model-view matrix
-    juce::Matrix3D<float> prevModelViewMatrix;            // Previous model-view matrix
-    juce::Matrix3D<float> redCubeModelViewMatrix;         // Model-view matrix for red cube
-    juce::Matrix3D<float> greenCubeModelViewMatrix;       // Model-view matrix for green cube
-    juce::Matrix3D<float> prevRedCubeModelViewMatrix;     // Previous model-view matrix for red cube
-    juce::Matrix3D<float> prevGreenCubeModelViewMatrix;   // Previous model-view matrix for green cube
+    // transformation matrices
+    juce::Matrix3D<float> modelViewMatrix;                // current model-view matrix
+    juce::Matrix3D<float> prevModelViewMatrix;            // previous model-view matrix
+    juce::Matrix3D<float> redCubeModelViewMatrix;         //model-view matrix for red cube
+    juce::Matrix3D<float> greenCubeModelViewMatrix;       //model-view matrix for green cube
+    juce::Matrix3D<float> prevRedCubeModelViewMatrix;     // previous model-view matrix for red cube
+    juce::Matrix3D<float> prevGreenCubeModelViewMatrix;   //previous model-view matrix for green cube
 
     juce::Colour interpolateColor(const juce::Colour& startColor,
         const juce::Colour& endColor,

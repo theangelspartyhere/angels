@@ -11,10 +11,10 @@ public:
     DisplayOverlay();
     void paint(juce::Graphics& g) override;
 
-    void setOverlayImage(const juce::Image& image);  // Setter for the PNG image.
+    void setOverlayImage(const juce::Image& image);  // setter for the PNG image.
 
 private:
-    juce::Image overlayImage; // Store the PNG for the overlay.
+    juce::Image overlayImage; // store the PNG for the overlay.
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DisplayOverlay)
 };

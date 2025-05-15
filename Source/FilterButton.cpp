@@ -33,7 +33,7 @@ void FilterButton::resized()
 
 void FilterButton::paint(juce::Graphics& g)
 {
-    // Choose the appropriate image based on the button's state.
+    // choose image based on the button's state.
     const juce::Image& currentImage = state ? onImage : offImage;
 
     if (!currentImage.isNull())
@@ -41,29 +41,29 @@ void FilterButton::paint(juce::Graphics& g)
         float imageW = static_cast<float>(currentImage.getWidth());
         float imageH = static_cast<float>(currentImage.getHeight());
 
-        // Compute the factor that would exactly fit the image inside the button.
+        // compute the factor that would exactly fit the image inside the button.
         float computedScale = std::min(getWidth() / imageW, getHeight() / imageH);
 
-        // Apply an extra multiplier so the image appears larger.
-        float multiplier = 7.0f;  // Adjust this value as desired.
+        // extra multiplier so the image appears larger.
+        float multiplier = 7.0f;  
         float scale = computedScale * multiplier;
 
-        // Calculate the new dimensions.
+        //  new dimensions.
         int destWidth = static_cast<int>(imageW * scale);
         int destHeight = static_cast<int>(imageH * scale);
 
-        // Center the image within the button.
+        // center the image.
         int offsetX = (getWidth() - destWidth) / 2;
         int offsetY = (getHeight() - destHeight) / 2;
 
-        // Draw the image with the new dimensions.
+        // draw the image with the new dimensions.
         g.drawImage(currentImage,
             offsetX, offsetY, destWidth, destHeight,   // destination rectangle
             0, 0, currentImage.getWidth(), currentImage.getHeight());  // source rectangle
     }
     else
     {
-        // Fallback: fill with a solid colour if the image is missing.
+        // fallback
         g.fillAll(state ? findColour(onColourId) : findColour(offColourId));
     }
 }

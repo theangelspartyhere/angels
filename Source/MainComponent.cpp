@@ -7,25 +7,24 @@
 
 using namespace juce::gl;
 
-//==============================================================================
 MainComponent::MainComponent()
     : cubeSize(1.0f),
     cubeColor(juce::Colours::red),
     dampValue(0.0f),
     widthValue(0.0f),
-    greenCubeAlpha(0.5f) // Default alpha value for the green cube
+    greenCubeAlpha(0.5f) // default alpha value for the green cube
 {
     setSize(350, 600);
-    setOpaque(false);  // Ensure the background is transparent
+    setOpaque(false);  // background is transparent
     setVisible(true);
 
 
-    // Add mouse listener for rotation
+    // mouse listener for rotation
     addMouseListener(this, true);
     setMouseClickGrabsKeyboardFocus(false);
     setMouseCursor(juce::MouseCursor());
 
-    //Start the OpenGL context
+    //start the OpenGL context
     openGLContext.setContinuousRepainting(true);
     openGLContext.attachTo(*this);
      /*openGLContext.setContinuousRepainting(false); 
@@ -63,28 +62,28 @@ void MainComponent::setDampValue(float newDamp)
 
 void MainComponent::setWidthValue(float newWidth)
 {
-    widthValue = juce::jlimit(0.0f, 1.0f, newWidth);  // Ensure widthValue is between 0 and 1
+    widthValue = juce::jlimit(0.0f, 1.0f, newWidth);  
 }
 
 void MainComponent::setGreenCubeAlpha(float newAlpha)
 {
-    greenCubeAlpha = juce::jlimit(0.0f, 1.0f, newAlpha); // Ensure alpha is between 0 and 1
+    greenCubeAlpha = juce::jlimit(0.0f, 1.0f, newAlpha); 
 }
 
 void MainComponent::initialise()
 {
-    // Enable depth testing and set clear color
+    // depth testing and set clear color
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);  // Accept fragments closer to the camera
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Clear background to black
+    glDepthFunc(GL_LEQUAL);  // accept fragments closer to the camera
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear background to black
 
-    // Enable blending for transparency
+    // blending for transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // === Define Shaders ===
+    //define shaders
 
-    // Cube Vertex Shader
+    // cube vertex shader
     const char* cubeVertexShaderSource = R"(
     #version 330 core
     layout(location = 0) in vec3 aPosition;
@@ -104,7 +103,7 @@ void MainComponent::initialise()
     }
     )";
 
-    // Cube Fragment Shader
+    // cube fragment shader
     const char* cubeFragmentShaderSource = R"(
     #version 330 core
     in vec4 vCurrentPos;
@@ -129,7 +128,7 @@ void MainComponent::initialise()
     }
     )";
 
-    // Create and compile the cube shader program
+    // create and compile the cube shader program
     cubeShaderProgram.reset(new juce::OpenGLShaderProgram(openGLContext));
 
     if (!cubeShaderProgram->addVertexShader(cubeVertexShaderSource))
@@ -153,7 +152,7 @@ void MainComponent::initialise()
         return;
     }
 
-    // Get attribute and uniform locations for the cube shader
+    // get attribute and uniform locations for the cube shader
     cubePositionAttribute.reset(new juce::OpenGLShaderProgram::Attribute(*cubeShaderProgram, "aPosition"));
 
     cubeProjectionMatrixUniform.reset(new juce::OpenGLShaderProgram::Uniform(*cubeShaderProgram, "uProjectionMatrix"));
@@ -162,7 +161,7 @@ void MainComponent::initialise()
     cubeColorUniform.reset(new juce::OpenGLShaderProgram::Uniform(*cubeShaderProgram, "uColor"));
     cubeAlphaUniform.reset(new juce::OpenGLShaderProgram::Uniform(*cubeShaderProgram, "uAlpha"));
 
-    // Motion Blur Shader
+    // motionblur shader
     const char* motionBlurVertexShaderSource = R"(
     #version 330 core
     layout(location = 0) in vec2 aPosition;
@@ -206,7 +205,7 @@ void MainComponent::initialise()
     }
     )";
 
-    // Create and compile the motion blur shader program
+    // create and compile the motion blur shader program
     motionBlurShaderProgram.reset(new juce::OpenGLShaderProgram(openGLContext));
 
     if (!motionBlurShaderProgram->addVertexShader(motionBlurVertexShaderSource))
@@ -230,12 +229,12 @@ void MainComponent::initialise()
         return;
     }
 
-    // Get attribute and uniform locations for the motion blur shader
+    // get attribute and uniform locations for the motion blur shader
     quadPositionAttribute.reset(new juce::OpenGLShaderProgram::Attribute(*motionBlurShaderProgram, "aPosition"));
     motionBlurColorTextureUniform.reset(new juce::OpenGLShaderProgram::Uniform(*motionBlurShaderProgram, "uColorTexture"));
     motionBlurMotionTextureUniform.reset(new juce::OpenGLShaderProgram::Uniform(*motionBlurShaderProgram, "uMotionTexture"));
 
-    // Basic Blur Shader (Enhanced Blur with DAMP)
+    // basic blur shader
     const char* blurVertexShaderSource = R"(
     #version 330 core
     layout(location = 0) in vec2 aPosition;
@@ -279,7 +278,7 @@ void MainComponent::initialise()
     }
     )";
 
-    // Create and compile the basic blur shader program
+    // create and compile the basic blur shader program
     blurShaderProgram.reset(new juce::OpenGLShaderProgram(openGLContext));
 
     if (!blurShaderProgram->addVertexShader(blurVertexShaderSource))
@@ -303,13 +302,13 @@ void MainComponent::initialise()
         return;
     }
 
-    // Get uniform locations for the blur shader
+    // get uniform locations for the blur shader
     blurTextureUniform.reset(new juce::OpenGLShaderProgram::Uniform(*blurShaderProgram, "uTexture"));
     blurDampUniform.reset(new juce::OpenGLShaderProgram::Uniform(*blurShaderProgram, "uDamp"));
 
-    // === Set Up Cube Geometry ===
+    // cube gemetry
 
-    // Define the cube vertices
+    // define the cube vertices
     static const GLfloat cubeVertices[] = {
         // Positions
         -1.0f, -1.0f, -1.0f, // 0
@@ -322,51 +321,51 @@ void MainComponent::initialise()
         -1.0f,  1.0f,  1.0f  // 7
     };
 
-    // Define the indices for the cube lines (wireframe)
+    // define the indices for the cube lines (wireframe)
     static const GLuint cubeIndices[] = {
-        // Front face
+        // front face
         0, 1, 1, 2, 2, 3, 3, 0,
-        // Back face
+        // back face
         4, 5, 5, 6, 6, 7, 7, 4,
-        // Edges between front and back faces
+        // edges between front and back faces
         0, 4, 1, 5, 2, 6, 3, 7
     };
 
     numIndices = sizeof(cubeIndices) / sizeof(GLuint);
 
-    // Generate and bind the VAO
+    // gen and bindthe VAO
     glGenVertexArrays(1, &cubeVAO);
     glBindVertexArray(cubeVAO);
 
-    // Generate and bind the VBO
+    // gen and bind the VBO
     glGenBuffers(1, &cubeVBO);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 
-    // Generate and bind the EBO (indices)
+    // ge and bind the EBO (indices)
     glGenBuffers(1, &cubeEBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 
-    // Configure vertex attributes
+    // configure vertex attributes
     glEnableVertexAttribArray(cubePositionAttribute->attributeID);
     glVertexAttribPointer(cubePositionAttribute->attributeID, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (void*)0);
 
-    // Unbind VAO
+    // unbind VAO
     glBindVertexArray(0);
 
-    // === Set Up Quad Geometry ===
+    // set up quad geo
 
-    // Quad vertices (position)
+    // quad vertices (position)
     GLfloat quadVertices[] = {
-        // Positions
-        -1.0f, -1.0f,   // Bottom-left
-         1.0f, -1.0f,   // Bottom-right
-        -1.0f,  1.0f,   // Top-left
-         1.0f,  1.0f    // Top-right
+        
+        -1.0f, -1.0f,   // bottom-left
+         1.0f, -1.0f,   // bottom-right
+        -1.0f,  1.0f,   // top-left
+         1.0f,  1.0f    // top-right
     };
 
-    // Generate and bind the VAO and VBO for the quad
+    // generate and bind the VAO and VBO for the quad
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
 
@@ -374,33 +373,33 @@ void MainComponent::initialise()
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
 
-    // Configure vertex attributes
-    glEnableVertexAttribArray(0); // Assuming layout(location = 0) in your shaders
+    // configure vertex attributes
+    glEnableVertexAttribArray(0); // 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
 
     glBindVertexArray(0);
 
-    // === Set Up Framebuffers and Textures ===
+    //framebuffers and textures
 
-    // Scene FBO and textures
+    // fbo and textures
     glGenFramebuffers(1, &sceneFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
 
-    // Color texture
+    // color texture
     glGenTextures(1, &colorTexture);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, getWidth(), getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
 
-    // Motion vector texture
+    // motion vector texture
     glGenTextures(1, &motionTexture);
     glBindTexture(GL_TEXTURE_2D, motionTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, getWidth(), getHeight(), 0, GL_RG, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, motionTexture, 0);
 
-    // Specify the list of draw buffers
+    // specify the list of draw buffers
     GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, buffers);
 
@@ -412,7 +411,7 @@ void MainComponent::initialise()
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Blur FBO and texture
+    // blur FBO and texture
     glGenFramebuffers(1, &blurFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, blurFBO);
 
@@ -430,10 +429,10 @@ void MainComponent::initialise()
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // Initialize the previous model-view matrices
-    prevModelViewMatrix = juce::Matrix3D<float>(); // Identity matrix
-    prevRedCubeModelViewMatrix = juce::Matrix3D<float>(); // Identity matrix
-    prevGreenCubeModelViewMatrix = juce::Matrix3D<float>(); // Identity matrix
+    // init previous matrices
+    prevModelViewMatrix = juce::Matrix3D<float>(); // identity matrix
+    prevRedCubeModelViewMatrix = juce::Matrix3D<float>(); 
+    prevGreenCubeModelViewMatrix = juce::Matrix3D<float>(); 
 }
 
 void MainComponent::render()
@@ -441,10 +440,10 @@ void MainComponent::render()
     jassert(juce::OpenGLHelpers::isContextActive());
 
 
-    // --- Animate Cube Rotation ---
-   // Increment rotation angles for a slow, continuous spin
-    rotationX += 0.1f;  // Adjust this value to control speed on the X-axis
-    rotationY += 0.2f;  // Adjust this value to control speed on the Y-axis
+    //cube roatation
+   // rotation angles for a slow spin
+    rotationX += 0.1f;  
+    rotationY += 0.2f;  
     if (rotationX > 360.0f)
         rotationX -= 360.0f;
     if (rotationY > 360.0f)
@@ -454,17 +453,17 @@ void MainComponent::render()
 
 
 
-    // === Update Transformations ===
+    //transformations
 
-    // Store the previous model-view matrices for each cube
+    // store the previous model-view matrices for each cube
     prevRedCubeModelViewMatrix = redCubeModelViewMatrix;
     prevGreenCubeModelViewMatrix = greenCubeModelViewMatrix;
 
-    // Calculate the aspect ratio
+    // calculate the aspect ratio
     float aspect = static_cast<float>(getWidth()) / getHeight();
 
-    // Manually create the projection matrix (perspective projection)
-    float fov = 60.0f; // Field of view in degrees
+    // create the projection matrix, perspective projection
+    float fov = 60.0f; // fov
     float near = 1.0f;
     float far = 100.0f;
     float f = 1.0f / std::tan(juce::degreesToRadians(fov) / 2.0f);
@@ -477,11 +476,11 @@ void MainComponent::render()
     };
     juce::Matrix3D<float> projectionMatrix(projectionMatrixValues);
 
-    // Create rotation matrix
+    //  rotation matrix
     juce::Matrix3D<float> rotationMatrix = juce::Matrix3D<float>::rotation(
         { juce::degreesToRadians(rotationX), juce::degreesToRadians(rotationY), 0.0f });
 
-    // Create translation matrix
+    //  translation matrix
     juce::Matrix3D<float> translationMatrix(
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
@@ -489,14 +488,14 @@ void MainComponent::render()
         0.0f, 0.0f, -10.0f, 1.0f
     );
 
-    // === Define Scaling Factors ===
-        // Create a common adjusted base size. 
-// This remaps cubeSize from [1.0, 2.0] to [1.0, 1.6] if using a factor of 0.6.
+    // scaling 
+        //  common adjusted base size. 
+//  remaps cubeSize from [1.0, 2.0] to [1.0, 1.6] if using a factor of 0.6.
     float adjustedBaseSize = 1.0f + ((cubeSize - 1.0f) * 0.6f);
-    // Red Cube uses cubeSize from the size slider/dial (unaffected by widthValue)
+    // redcube uses cubeSize from the size slider/dial (unaffected by widthValue)
     float cubeSize1 = cubeSize;
 
-    // Green Cube scales based on widthValue
+    // green cube scales based on widthValue
     float minScale = 0.5f; // Minimum scale factor
     float maxScale = 1.5f; // Maximum scale factor
     float greenScaleFactor = minScale + (maxScale - minScale) * widthValue;
@@ -505,31 +504,31 @@ void MainComponent::render()
 
 
 
-    // === Render the Cubes to Scene FBO ===
+    // render cubes to scene FBO 
 
-    // Bind and clear the scene framebuffer
+    // bind and clear the scene framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
     glViewport(0, 0, getWidth(), getHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     cubeShaderProgram->use();
 
-    // Set uniforms
+    // set uniforms
     if (cubeProjectionMatrixUniform != nullptr)
         cubeProjectionMatrixUniform->setMatrix4(projectionMatrix.mat, 1, false);
 
-    // Set line width
+    // line width
     glLineWidth(5.0f);
 
-    // --- Render Red Cube --- //
+    //render red cube 
     {
-        // Set color to the red cube's color
+        // set color 
         if (cubeColorUniform != nullptr)
             cubeColorUniform->set(cubeColor.getFloatRed(),
                 cubeColor.getFloatGreen(),
                 cubeColor.getFloatBlue());
 
-        // Set alpha to 1.0 (fully opaque)
+        // set alpha to  opaque
         if (cubeAlphaUniform != nullptr)
             cubeAlphaUniform->set(1.0f);
 
@@ -542,28 +541,28 @@ void MainComponent::render()
         );
         redCubeModelViewMatrix = translationMatrix * rotationMatrix * scalingMatrix1;
 
-        // Set model-view matrices
+        // set model-view matrices
         if (cubeModelViewMatrixUniform != nullptr)
             cubeModelViewMatrixUniform->setMatrix4(redCubeModelViewMatrix.mat, 1, false);
         if (cubePrevModelViewMatrixUniform != nullptr)
             cubePrevModelViewMatrixUniform->setMatrix4(prevRedCubeModelViewMatrix.mat, 1, false);
 
-        // Bind VAO and draw red cube
+        // bind VAO and draw red cube
         glBindVertexArray(cubeVAO);
         glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, 0);
     }
 
-    // --- Render Green Cube --- //
+    // render green cube//
     {
-        // Set color to green
+        // color
         if (cubeColorUniform != nullptr)
-            cubeColorUniform->set(1.0f, 1.0f, 1.0f);  // Green color CHANGED TO WHITE
+            cubeColorUniform->set(1.0f, 1.0f, 1.0f);  // green color CHANGED TO WHITE
 
-        // Set alpha to make the cube less visible
+        // set alpha to make the cube less visible
         if (cubeAlphaUniform != nullptr)
-            cubeAlphaUniform->set(greenCubeAlpha);  // Adjust alpha value as needed
+            cubeAlphaUniform->set(greenCubeAlpha);  // 
 
-        // Create scaling matrix for the green cube
+        // scaling matrix for the green cube
         juce::Matrix3D<float> scalingMatrix2(
             whiteCubeSize, 0.0f, 0.0f, 0.0f,
             0.0f, whiteCubeSize, 0.0f, 0.0f,
@@ -573,28 +572,26 @@ void MainComponent::render()
         greenCubeModelViewMatrix = translationMatrix * rotationMatrix * scalingMatrix2;
 
 
-        // Set model-view matrices
+        // set model-view matrices
         if (cubeModelViewMatrixUniform != nullptr)
             cubeModelViewMatrixUniform->setMatrix4(greenCubeModelViewMatrix.mat, 1, false);
         if (cubePrevModelViewMatrixUniform != nullptr)
             cubePrevModelViewMatrixUniform->setMatrix4(prevGreenCubeModelViewMatrix.mat, 1, false);
 
-        // Draw the green cube
+        // draw green cube
         glDrawElements(GL_LINES, numIndices, GL_UNSIGNED_INT, 0);
     }
 
-    // Unbind VAO after drawing
+    // unbind VAO 
     glBindVertexArray(0);
 
-    // Unbind the scene framebuffer
+    // unbind the scene framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // === Apply Motion Blur ===
-
-    // Use motion blur shader program
+    // motionblur
     motionBlurShaderProgram->use();
 
-    // Bind the necessary textures and set uniforms
+    // bind textures and set uniforms
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorTexture);
     if (motionBlurColorTextureUniform != nullptr)
@@ -605,26 +602,26 @@ void MainComponent::render()
     if (motionBlurMotionTextureUniform != nullptr)
         motionBlurMotionTextureUniform->set(1);
 
-    // Bind framebuffer and clear
+    // bind framebuffer and clear
     glBindFramebuffer(GL_FRAMEBUFFER, blurFBO);
     glViewport(0, 0, getWidth(), getHeight());
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw the quad
+    // draw the quad
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindVertexArray(0);
 
-    // Unbind the framebuffer
+    // unbind the framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    // === Apply Basic Blur (Gaussian Blur) ===
+    //basic blur 
 
-    // Use blur shader program
+    
     blurShaderProgram->use();
 
-    // Bind the blurred texture from the motion blur pass
+    // bind the blurred texture from the motion blur pass
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, blurTexture);
     if (blurTextureUniform != nullptr)
@@ -633,11 +630,11 @@ void MainComponent::render()
     if (blurDampUniform != nullptr)
         blurDampUniform->set(dampValue);
 
-    // Clear the default framebuffer
+    // clear the default framebuffer
     glViewport(0, 0, getWidth(), getHeight());
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw the quad
+    // draw the quad
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -646,9 +643,9 @@ void MainComponent::render()
 
 void MainComponent::shutdown()
 {
-    // Delete buffers and resources
+    
 
-    // Delete cube VAO and VBO
+    // delete cube VAO and VBO
     if (cubeVAO != 0)
     {
         glDeleteVertexArrays(1, &cubeVAO);
@@ -667,7 +664,7 @@ void MainComponent::shutdown()
         cubeEBO = 0;
     }
 
-    // Delete quad VAO and VBO
+    // delete quad VAO and VBO
     if (quadVAO != 0)
     {
         glDeleteVertexArrays(1, &quadVAO);
@@ -680,7 +677,7 @@ void MainComponent::shutdown()
         quadVBO = 0;
     }
 
-    // Delete textures and framebuffers
+    // delete textures and framebuffers
     if (colorTexture != 0)
     {
         glDeleteTextures(1, &colorTexture);
@@ -711,7 +708,7 @@ void MainComponent::shutdown()
         blurFBO = 0;
     }
 
-    // Reset shader programs
+    // reset
     cubeShaderProgram.reset();
     motionBlurShaderProgram.reset();
     blurShaderProgram.reset();
@@ -719,13 +716,13 @@ void MainComponent::shutdown()
 
 void MainComponent::paint(juce::Graphics& g)
 {
-    // OpenGL rendering is handled in render()
+    // handled in render()
 }
 
 void MainComponent::resized()
 {
-    // Handle window resizing
-    // Update textures and framebuffers to match new size
+    // handle window resizing
+    // update textures and framebuffers to match new size
 
     if (colorTexture != 0)
     {
@@ -771,8 +768,8 @@ void MainComponent::mouseDrag(const juce::MouseEvent& event)
         float deltaX = event.getPosition().getX() - lastMouseX;
         float deltaY = event.getPosition().getY() - lastMouseY;
 
-        rotationY += deltaX * 0.5f;  // Adjust sensitivity as needed
-        rotationX += deltaY * 0.5f;  // Adjust sensitivity as needed
+        rotationY += deltaX * 0.5f;  
+        rotationX += deltaY * 0.5f;  
 
         lastMouseX = event.getPosition().getX();
         lastMouseY = event.getPosition().getY();

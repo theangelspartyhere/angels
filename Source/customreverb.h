@@ -37,12 +37,14 @@ public:
     float processSample(float inputSample, float decay, bool isLeftChannel, float mix)
     {
         decay = juce::jlimit(0.0f, 1.0f, decay);
+        decay *= 0.99f; //decay to 99%
         float combSum = 0.0f;
 
         for (size_t i = 0; i < combFilters.size(); ++i)
         {
             float adjustedDecay = std::pow(decay, 0.07f);
-            float feedbackGain = juce::jmap(adjustedDecay, 0.0f, 1.0f, 0.15f, 1.05f);
+            float feedbackGain = juce::jmap(adjustedDecay, 0.0f, 1.0f, 0.15f, 1.02f); //increased decay strength  
+
             if (!isLeftChannel)
                 feedbackGain *= 0.98f;
 
@@ -56,7 +58,7 @@ public:
         float allPassOut = combSum;
         for (size_t i = 0; i < allPassFilters.size(); ++i)
         {
-            float gain = (decay > 0.0f) ? 0.65f : 0.0f; // Boost diffusion strength
+            float gain = (decay > 0.0f) ? 0.65f : 0.0f; // boost diffusion strength  
             if (!isLeftChannel)
                 gain *= 1.02f;
             allPassOut = allPassFilters[i].processSample(allPassOut, gain);
@@ -72,7 +74,7 @@ public:
         if (numChannels < 2)
             return;
 
-        // Clamp widthParameter to [0.0, 1.0].
+        
         widthParameter = juce::jlimit(0.0f, 1.0f, widthParameter);
 
         auto* leftChannel = buffer.getWritePointer(0);
@@ -84,7 +86,7 @@ public:
             float rightWet = processSample(rightChannel[sample], decay, false, mix);
             float monoSignal = (leftWet + rightWet) * 0.5f;
 
-            // Use widthParameter to interpolate between a fully mono signal and the processed stereo signal.
+            //widthparameter to interpolate between a fully mono signal and the processed stereo signal.
             leftChannel[sample] = juce::jmap(widthParameter, 0.0f, 1.0f, monoSignal, leftWet);
             rightChannel[sample] = juce::jmap(widthParameter, 0.0f, 1.0f, monoSignal, rightWet);
         }
@@ -92,7 +94,7 @@ public:
 
     void setSize(float newSize)
     {
-        sizeParameter = juce::jlimit(0.4f, 2.8f, newSize); // Expanded size range
+        sizeParameter = juce::jlimit(0.4f, 2.8f, newSize); // expanded size range
         for (size_t i = 0; i < combFilters.size(); ++i)
         {
             combFilters[i].setSize(sizeParameter, combDelaysMs[i]);

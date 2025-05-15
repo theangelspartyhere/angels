@@ -3,7 +3,7 @@
 #include "PluginEditor.h"
 #include "CustomLookAndFeel.h"
 
-// EditorContent constructor
+
 EditorContent::EditorContent(PluginProcessor& p, juce::UndoManager& um, PluginEditor& editor)
     : apvts(p.getPluginState()),
     pluginEditor(editor),
@@ -20,26 +20,26 @@ EditorContent::EditorContent(PluginProcessor& p, juce::UndoManager& um, PluginEd
     setWantsKeyboardFocus(true);
     setFocusContainerType(FocusContainerType::keyboardFocusContainer);
 
-    // Ensure sliders reflect the initial parameter state (restored via APVTS)
+    // reflect the initial parameter state, restored via apvts
     sizeSlider.setValue(apvts.getParameterAsValue(ParameterIDs::size).getValue());
     dampSlider.setValue(apvts.getParameterAsValue(ParameterIDs::damp).getValue());
     widthSlider.setValue(apvts.getParameterAsValue(ParameterIDs::width).getValue());
     mixSlider.setValue(apvts.getParameterAsValue(ParameterIDs::mix).getValue());
     //mixSlider.setValue(100.0f, juce::dontSendNotification);
 
-    // Optionally, synchronize labels with restored slider values
+    // synchronize labels with restored slider values
     sizeLabel.setText(juce::String(sizeSlider.getValue(), 1), juce::dontSendNotification);
     dampLabel.setText(juce::String(dampSlider.getValue(), 1), juce::dontSendNotification);
     widthLabel.setText(juce::String(widthSlider.getValue(), 1), juce::dontSendNotification);
     //mixLabel.setText(juce::String(mixSlider.getValue(), 1), juce::dontSendNotification);
 
-    // Slider aesthetics and listeners
+    // aesthetics and listeners
     sizeSlider.setLookAndFeel(&customLookAndFeel);
     dampSlider.setLookAndFeel(&customLookAndFeel);
     widthSlider.setLookAndFeel(&customLookAndFeel);
     mixSlider.setLookAndFeel(&customLookAndFeel);
 
-    // Set slider ranges and listeners
+    // slider ranges and listeners
     sizeSlider.setRange(0.0, 100.0, 1.0);
     sizeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 50, 20);
     sizeSlider.addListener(this);
@@ -66,14 +66,14 @@ EditorContent::EditorContent(PluginProcessor& p, juce::UndoManager& um, PluginEd
     
     addAndMakeVisible(filterButton);
 
-    // Now hide the mix slider and filter button
+    // hide the mix slider and filter button
     mixSlider.setVisible(false);
     filterButton.setVisible(false);
 
 
    
 
-    // Set up labels
+    //labels
     /*sizeLabel.setFont(customLookAndFeel.getcustomTypeface().withPointHeight(18.0f).withExtraKerningFactor(-0.1f));
     sizeLabel.setColour(juce::Label::textColourId, juce::Colours::white);
     sizeLabel.setJustificationType(juce::Justification::centredRight);
@@ -120,8 +120,8 @@ void EditorContent::resized()
 {
     auto area = getLocalBounds().reduced(10);
 
-    // Define the height for the icon
-    auto iconHeight = 50; // Set a reasonable height for the icon
+    //height for the icon
+    auto iconHeight = 50; 
     auto iconArea = area.removeFromTop(iconHeight);
 
  
@@ -129,20 +129,20 @@ void EditorContent::resized()
     const int spacer = 50;
     area.removeFromTop(spacer);
 
-    // Allocate space for sliders
+    // space for sliders
     auto sliderArea = area;
     //auto sliderHeight = sliderArea.getHeight() / 4;
-   // Example: Explicit dimensions for smaller, thinner sliders
-    const int sliderWidth = 150;  // Keep the narrow width
-    const int sliderHeight = 14; // Keep the slim height
-    const int sliderSpacing = 21; // Reduced spacing between sliders
+   
+    const int sliderWidth = 150;  //narrow width
+    const int sliderHeight = 14; //  slim height
+    const int sliderSpacing = 21; //spacing between sliders
 
-    // Move the starting X position further to the right
-    const int startingX = 100; // Adjust this value to move sliders to the right
-    const int startingY = 150; // Maintain the lower starting Y position
+    //move the starting X position further to the right
+    const int startingX = 100; //  to move sliders to the right
+    const int startingY = 150; 
     
-    const int labelWidth = 30;  // Width of the value label
-    const int labelOffset = 5; // Space between slider and label
+    const int labelWidth = 30;  // width of the value label
+    const int labelOffset = 5; // space between slider and label
 
     sizeSlider.setBounds(startingX, startingY, sliderWidth, sliderHeight);
     sizeLabel.setBounds(startingX + sliderWidth + labelOffset - 7 , startingY, labelWidth, sliderHeight);
@@ -158,7 +158,7 @@ void EditorContent::resized()
 
 
 
-    // Center the logo (freeze button)
+    // center the logo 
     auto logoWidth = 128;
     auto logoHeight = 96;
     filterButton.setBounds(iconArea.withSizeKeepingCentre(logoWidth, logoHeight));
@@ -167,29 +167,29 @@ void EditorContent::resized()
 
 
     // Overlay Blend Slide
-    //auto filterButtonBounds = filterButton.getBounds(); // Get freeze button bounds
-    auto overlayArea = getLocalBounds().reduced(10).removeFromBottom(40); // Adjust positioning manually
+    //auto filterButtonBounds = filterButton.getBounds(); // get freeze button bounds
+    auto overlayArea = getLocalBounds().reduced(10).removeFromBottom(40); // adjust positioning
 
-    //const int overlaySliderHeight = 12; // Make the slider thinner
+    //const int overlaySliderHeight = 12; // make the slider thinner
     //overlayBlendSlider.setBounds(
-    //    filterButtonBounds.getX(),              // Same X as the freeze button
-    //    filterButtonBounds.getBottom() + 10,    // Positioned directly below the freeze button
-    //    filterButtonBounds.getWidth(),          // Same width as the freeze button
-    //    overlaySliderHeight                     // Thinner height
+    //    filterButtonBounds.getX(),              // same X as the freeze button
+    //    filterButtonBounds.getBottom() + 10,    // positioned below button
+    //    filterButtonBounds.getWidth(),          // same width as the freeze button
+    //    overlaySliderHeight                     // thinner height
     //);
-    const int overlayX = 120;  // Adjust based on previous button position
-    const int overlayY = 310; // Keep it near the original spot
-    const int overlayWidth = 110; // Keep width manageable
-    const int overlayHeight = 12; // Maintain slim slider height
+    const int overlayX = 120;  
+    const int overlayY = 310; 
+    const int overlayWidth = 110; 
+    const int overlayHeight = 12; 
 
     overlayBlendSlider.setBounds(overlayX, overlayY, overlayWidth, overlayHeight);
 
-    // Optional: Position the label below or next to the slider (adjust as needed)
+    // position the label below or next to the slider 
     //overlayBlendLabel.setBounds(
     //    overlayBlendSlider.getX() - 2,
-    //    overlayBlendSlider.getBottom() + 5,     // Add spacing below the slider
+    //    overlayBlendSlider.getBottom() + 5,     
     //    overlayBlendSlider.getWidth(),
-    //    overlaySliderHeight                     // Same height as the slider for consistency
+    //    overlaySliderHeight                     
     //);
 
 }
@@ -198,36 +198,36 @@ void EditorContent::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &sizeSlider)
     {
-        float sliderValue = sizeSlider.getValue() / 100.0f;  // Normalize to [0.0, 1.0]
-        float sizeValue = 1.0f + (sliderValue * 1.0f);        // Map to [0.5, 2.0]
-        sizeLabel.setText(juce::String(sizeSlider.getValue(), 1), juce::dontSendNotification); // One decimal place
+        float sliderValue = sizeSlider.getValue() / 100.0f;  
+        float sizeValue = 1.0f + (sliderValue * 1.0f);        
+        sizeLabel.setText(juce::String(sizeSlider.getValue(), 1), juce::dontSendNotification); 
 
 
-        // Notify PluginEditor about the size change
+        // noti about the size change
         pluginEditor.updateCubeSize(sizeValue);
     }
     else if (slider == &dampSlider)
     {
-        float sliderValue = dampSlider.getValue() / 100.0f;  // Normalize to [0.0, 1.0]
+        float sliderValue = dampSlider.getValue() / 100.0f;  
         dampLabel.setText(juce::String(dampSlider.getValue(), 1), juce::dontSendNotification);
 
 
-        // Notify PluginEditor about the damp change
+        // notify about the damp change
         pluginEditor.updateDampValue(sliderValue);
     }
     else if (slider == &widthSlider)
     {
-        float sliderValue = widthSlider.getValue() / 100.0f;  // Normalize to [0.0, 1.0]
-        float widthValue = (sliderValue );       // Map to [-1.0, 1.0]
+        float sliderValue = widthSlider.getValue() / 100.0f;  
+        float widthValue = (sliderValue );       // map to [-1.0, 1.0]
         widthLabel.setText(juce::String(widthSlider.getValue(), 1), juce::dontSendNotification);
 
 
-        // Notify PluginEditor about the width change
+        // notify  about the width change
         pluginEditor.updateWidthValue(widthValue);
     }
 
     mixLabel.setText(juce::String(mixSlider.getValue(), 1), juce::dontSendNotification);
-    // Handle mixSlider if needed...
+    
 }
 
 bool EditorContent::keyPressed(const juce::KeyPress& k)

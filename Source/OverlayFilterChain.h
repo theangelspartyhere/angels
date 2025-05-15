@@ -5,13 +5,13 @@
 class OverlayFilterChain
 {
 public:
-    // Set the active overlay filter (for example, a VileFilter).
+    //set the active overlay filter 
     void setActiveFilter(std::unique_ptr<OverlayFilter> newFilter)
     {
         activeFilter = std::move(newFilter);
     }
 
-    // Process a sample through the active overlay filter.
+    // rocess a sample through the active overlay filter.
     float processSample(float inputSample)
     {
         if (!activeFilter)
@@ -19,7 +19,7 @@ public:
         return activeFilter->processSample(inputSample);
     }
 
-    // Forward parameter settings to the active filter.
+    // forward parameter settings to the active filter.
     void setMix(float newMix)
     {
         if (activeFilter)

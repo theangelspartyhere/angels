@@ -28,19 +28,19 @@ public:
 
     float CombFilter::processSample(float inputSample, float feedbackGain, float sizeFactor, bool isLeftChannel, float width, float mix)
     {
-        // Clamp mix to [0.0, 1.0].
+        // clamp mix
         mix = juce::jlimit(0.0f, 1.0f, mix);
 
-        // --- Dry Signal ---
+        
         float drySignal = inputSample;
 
-        // --- DECAY BRANCH ---
+        // decay
         float delayedFeedback = decayDelayLine.popSample(0);
         constexpr float cutoffFrequency = 2000.0f;
         float alpha = cutoffFrequency / (cutoffFrequency + sampleRate / (2.0f * MathConstants<float>::pi));
         delayedFeedback = alpha * delayedFeedback + (1.0f - alpha) * lastDecaySample;
 
-        // Slight attenuation to help avoid runaway gain.
+        // attenuation to avoid runaway gain.
         delayedFeedback *= 0.99f;
         lastDecaySample = delayedFeedback;
 
@@ -48,12 +48,12 @@ public:
             ? inputSample + feedbackGain * delayedFeedback
             : inputSample;
 
-        // --- SPATIAL BRANCH ---
+        // spatial
         float spatialEcho = spatialDelayLine.popSample(0);
         constexpr float spatialFeedback = 0.45f;
         float spatialSignal = inputSample + spatialFeedback * spatialEcho;
 
-        // Slight attenuation to stabilize the spatial branch.
+        //  attenuation to stabilize
         spatialSignal *= 0.99f;
         spatialDelayLine.pushSample(0, spatialSignal);
 
@@ -63,7 +63,7 @@ public:
         decaySignal += 0.45f * spatialEcho;
         decayDelayLine.pushSample(0, decaySignal);
 
-        // --- WIDTH PROCESSING: Haas Effect ---
+        // haas effect
         constexpr float maxWidthDelayTime = 0.02f; // 20 ms max delay at width = 1
         float delaySamples = width * (maxWidthDelayTime * sampleRate);
         widthDelayLine.setDelay(delaySamples);
@@ -83,7 +83,7 @@ public:
 
         float wetOutput = isLeftChannel ? leftOutput : rightOutput;
 
-        // --- Wet/Dry Mix ---
+        //wet dry mix
         return (1.0f - mix) * drySignal + mix * wetOutput;
     }
 

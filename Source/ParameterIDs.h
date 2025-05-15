@@ -7,7 +7,7 @@ namespace ParameterIDs
     inline constexpr auto damp{ "DECAY" };
     inline constexpr auto width{ "WIDTH" };
     inline constexpr auto mix{ "MIX" };
-    inline constexpr auto freeze{ "freeze" }; // Keep this unchanged for now if still needed
+    inline constexpr auto freeze{ "freeze" }; // unchanged for now 
 }
 
 

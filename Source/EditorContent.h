@@ -6,7 +6,7 @@
 #include "FilterButton.h"
 #include "CustomLookAndFeel.h"
 
-// Forward declaration of PluginEditor
+// forward declaration 
 class PluginEditor;
 
 class EditorContent final : public juce::Component,
@@ -18,7 +18,7 @@ public:
     void resized() override;
     bool keyPressed(const juce::KeyPress& k) override;
 
-    // Slider listener callback
+    // slider listener callback
     void sliderValueChanged(juce::Slider* slider) override;
 
 private:
@@ -26,15 +26,15 @@ private:
 
 
     juce::AudioProcessorValueTreeState& apvts;
-    PluginEditor& pluginEditor;  // Reference to the PluginEditor
+    PluginEditor& pluginEditor;  // reference to plugineditor
 
-    // Sliders
+    
     juce::Slider sizeSlider;
     juce::Slider dampSlider;
     juce::Slider widthSlider;
     juce::Slider mixSlider;
 
-    // Attachments
+    //attachments
     juce::AudioProcessorValueTreeState::SliderAttachment sizeAttachment;
     juce::AudioProcessorValueTreeState::SliderAttachment dampAttachment;
     juce::AudioProcessorValueTreeState::SliderAttachment widthAttachment;
@@ -48,16 +48,16 @@ private:
     juce::Label widthLabel;
     juce::Label mixLabel;
 
-    // Freeze button
+    
     FilterButton filterButton;
 
     
 
     //OverlayFilter Slider
-   // OverlayFilter& overlayFilter; // Reference to the OverlayFilter instance
-    juce::Slider overlayBlendSlider;                // New slider for blending
-    juce::Label overlayBlendLabel;                  // New label for the slider
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> overlayBlendAttachment;  // Parameter attachment
+   // OverlayFilter& overlayFilter; // reference to the overlayfilter
+    juce::Slider overlayBlendSlider;                // slider for blending
+    juce::Label overlayBlendLabel;                  // label for the slider
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> overlayBlendAttachment;  // param attachment
     
 
     //declare

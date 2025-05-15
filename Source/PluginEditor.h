@@ -15,7 +15,7 @@ public:
     void paint(juce::Graphics& g) override;
     bool keyPressed(const juce::KeyPress& k) override;
 
-    // Methods to update visualization parameters
+    //  update visualization parameters
     void updateCubeSize(float newSize);
     void updateDampValue(float newDamp);
     void updateWidthValue(float newWidth);

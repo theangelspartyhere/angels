@@ -13,9 +13,9 @@ PluginEditor::PluginEditor(PluginProcessor& p, juce::UndoManager& um)
     setSize(350, 600);
     
 
-    // Add components in the correct layering order
-    addAndMakeVisible(openGLComponent);  // OpenGL cube component first
-    addAndMakeVisible(editorContent);   // Sliders and other controls second
+    // components in the  layering order
+    addAndMakeVisible(openGLComponent);  
+    addAndMakeVisible(editorContent);   
     
 
     //setSize(defaultWidth, defaultHeight); // Set the initial size
@@ -27,15 +27,15 @@ void PluginEditor::paint(juce::Graphics& g)
 
     auto backgroundImage = juce::ImageCache::getFromMemory(BinaryData::BACKGROUND_png, BinaryData::BACKGROUND_pngSize);
 
-    // Check if the image was loaded correctly
+    // check if the image loaded
     if (backgroundImage.isValid())
     {
-        // Draw the image to fill the plugin's background area
+        // draw the image to fill the plugin's background 
         g.drawImage(backgroundImage, getLocalBounds().toFloat());
     }
     else
     {
-        // Fallback to a solid color if the image fails to load
+        // fallback to a solid if  image fails 
         g.fillAll(juce::Colours::black);
     }
 
@@ -44,7 +44,7 @@ void PluginEditor::paint(juce::Graphics& g)
     auto area = getLocalBounds().toFloat();
     area.removeFromTop(30);
 
-    // Make the rounded rectangle smaller (shorter height, narrower width)
+    // make the rounded rectangle smaller 
     auto cutoutBounds = area.removeFromTop(150).withTrimmedLeft(75).withTrimmedRight(75);
 
     g.setColour(juce::Colours::black);
@@ -56,14 +56,14 @@ void PluginEditor::resized()
     //setSize(300, 600);
     auto area = getLocalBounds();
 
-    // Add 10px padding at the top
+    // 10px padding at the top
     area.removeFromTop(30);
 
-    // Match the OpenGL bounds to the smaller rounded rectangle
+    // match the OpenGL bounds
     auto openGLBounds = area.removeFromTop(150).withTrimmedLeft(75).withTrimmedRight(75);
     openGLComponent.setBounds(openGLBounds);
 
-    // Remaining space for sliders and controls
+    // remaining space for sliders and controls
     editorContent.setBounds(area);
 
     

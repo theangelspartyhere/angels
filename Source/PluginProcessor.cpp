@@ -46,12 +46,12 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
         100.0f,
         percentageAttributes));
 
-    // --- NEW: Overlay Blend Parameter ---
+    
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID{ "OVERLAY_BLEND", 1 },
         "Overlay Blend",
         juce::NormalisableRange<float>{ 0.0f, 100.0f, 0.01f, 1.0f },
-        50.0f,  // Default value set at 50%
+        50.0f,  // default value set at 50%
         percentageAttributes));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(
@@ -134,7 +134,7 @@ void PluginProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 
 void PluginProcessor::releaseResources()
 {
-    // Free resources if needed.
+    
 }
 
 bool PluginProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
@@ -151,12 +151,12 @@ bool PluginProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 
 void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    // Scoped guard against denormalized floating-point numbers
+    // scoped guard against denormalized floating-point numbers
     juce::ScopedNoDenormals noDenormals;
 
-    juce::ignoreUnused(midiMessages); // Prevent compiler warnings for unused parameters
+    juce::ignoreUnused(midiMessages); // prevent compiler warnings for unused parameters
 
-    // Set DSP parameters
+    // set DSP params
     dspWrapper.setParameter(ParameterIDs::size, juce::jlimit(0.0f, 1.0f, size->get() * 0.01f));
     dspWrapper.setParameter(ParameterIDs::damp, juce::jlimit(0.0f, 1.0f, damp->get() * 0.01f));
     dspWrapper.setParameter(ParameterIDs::width, juce::jlimit(0.0f, 1.0f, width->get() * 0.01f));
@@ -164,27 +164,27 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiB
     dspWrapper.setParameter("OVERLAY_ON", apvts.getRawParameterValue("OVERLAY_ON")->load());
 
 
-    // NEW CODE: Update the overlay filter mix based on the "OVERLAY_BLEND" parameter.
+    //update the overlay filter mix based on the overlay parameter.
     if (auto* blendParam = apvts.getRawParameterValue("OVERLAY_BLEND"))
     {
-        // The parameter range is assumed to be 0–100, so normalize it to 0.0–1.0:
+        //  normalize param range it to 0.0–1.0:
         float blendNormalized = blendParam->load() * 0.01f;
         dspWrapper.setOverlayMix(blendNormalized);
     }
     else
     {
-        jassertfalse; // "OVERLAY_BLEND" parameter not found!
+        jassertfalse; // overlay parameter not found
     }
 
 
 
-    // Process the audio block with your DSPWrapper
+    // process the audio block with the DSPWrapper
     dspWrapper.processBlock(buffer);
 
    
 
 
-    // Limiter processing
+    // limiter 
     juce::dsp::AudioBlock<float> limiterBlock(buffer);
     juce::dsp::ProcessContextReplacing<float> limiterCtx(limiterBlock);
     //limiter.process(limiterCtx);
@@ -192,7 +192,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiB
 
     buffer.applyGain(0.75f); 
 
-    // Soft clipping with tanh
+    // soft clipping with tanh
     const float clipFactor = 0.7f;
     for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
     {
@@ -203,7 +203,7 @@ void PluginProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiB
         }
     }
 
-    // Flush denormalized values
+    // flush denormalized values
     buffer.applyGain(0.7f);
 
    

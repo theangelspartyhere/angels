@@ -8,7 +8,7 @@ public:
     CustomLookAndFeel();
     ~CustomLookAndFeel() override;
 
-    // Override the method that draws linear sliders.
+    //override the method that draws linear sliders.
     void drawLinearSlider(juce::Graphics& g,
         int x, int y, int width, int height,
         float sliderPos, float minSliderPos, float maxSliderPos,
@@ -18,7 +18,7 @@ public:
     juce::Font getcustomTypeface() const { return customTypeface; }
 
 private:
-    // Stores textures as images (if you choose to use them later)
+    // stores textures as images 
     juce::Image sliderTrack;
     juce::Image sliderKnob;
 

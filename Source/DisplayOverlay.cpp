@@ -8,11 +8,11 @@ DisplayOverlay::DisplayOverlay() {}
 
 void DisplayOverlay::paint(juce::Graphics& g)
 {
-    // Debug fill for visibility
-    g.setColour(juce::Colours::blue.withAlpha(0.5f)); // Semi-transparent blue
+    
+    g.setColour(juce::Colours::blue.withAlpha(0.5f)); // semitransparent blue
     g.fillRoundedRectangle(getLocalBounds().toFloat(), 20.0f);
 
-    // Draw the overlay image (if valid)
+    // draw the overlay image (if valid)
     if (overlayImage.isValid())
     {
         g.drawImageWithin(overlayImage, 0, 0, getWidth(), getHeight(), juce::RectanglePlacement::centred);
@@ -23,5 +23,5 @@ void DisplayOverlay::paint(juce::Graphics& g)
 void DisplayOverlay::setOverlayImage(const juce::Image& image)
 {
     overlayImage = image;
-    repaint(); // Redraw when the image changes
+    repaint(); // redraw when the image changes
 }
