@@ -37,18 +37,34 @@ public:
     float processSample(float inputSample, float decay, bool isLeftChannel, float mix)
     {
         decay = juce::jlimit(0.0f, 1.0f, decay);
-        decay *= 0.99f; //decay to 99%
+        decay *= 0.99f; // Scale decay to 99%
         float combSum = 0.0f;
 
+        //size and width before processing
+        float processedInput = inputSample; // size and width first
+        processedInput *= (1.0f + sizeParameter * 0.5f); // size scaling
+        processedInput = juce::jmap(widthParameter, 0.0f, 1.0f, (processedInput * 0.5f), processedInput); // width process
+
+
+        // low cut on the decay path
+        float decayInput = processedInput; // preserve processed signal  
+
+        // highpass only to decay before feedback 
+        static juce::IIRFilter highPassFilter;
+        float noiseFilterFreq = juce::jmap(decay, 0.0f, 1.0f, 20.0f, 80.0f);
+        float qFactor = juce::jmap(decay, 0.0f, 1.0f, 0.5f, 1.2f);
+        highPassFilter.setCoefficients(juce::IIRCoefficients::makeHighPass(44100.0f, noiseFilterFreq, qFactor));
+        decayInput = highPassFilter.processSingleSampleRaw(decayInput);
+
+        // process decay filtered input to comb filters  
         for (size_t i = 0; i < combFilters.size(); ++i)
         {
             float adjustedDecay = std::pow(decay, 0.07f);
-            float feedbackGain = juce::jmap(adjustedDecay, 0.0f, 1.0f, 0.15f, 1.02f); //increased decay strength  
-
+            float feedbackGain = juce::jmap(adjustedDecay, 0.0f, 1.0f, 0.15f, 1.02f); // restore the decay strength  
             if (!isLeftChannel)
                 feedbackGain *= 0.98f;
 
-            combSum += combFilters[i].processSample(inputSample, feedbackGain, sizeParameter, isLeftChannel, widthParameter, mix)
+            combSum += combFilters[i].processSample(decayInput, feedbackGain, sizeParameter, isLeftChannel, widthParameter, mix)
                 * (1.0f + sizeParameter * 0.5f);
         }
 
@@ -58,7 +74,7 @@ public:
         float allPassOut = combSum;
         for (size_t i = 0; i < allPassFilters.size(); ++i)
         {
-            float gain = (decay > 0.0f) ? 0.65f : 0.0f; // boost diffusion strength  
+            float gain = juce::jmap(decay, 0.0f, 1.0f, 0.50f, 0.65f);
             if (!isLeftChannel)
                 gain *= 1.02f;
             allPassOut = allPassFilters[i].processSample(allPassOut, gain);
