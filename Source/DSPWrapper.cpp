@@ -8,10 +8,10 @@ void DSPWrapper::prepare(double sampleRate, int numChannels)
     jassert(sampleRate > 0);
     jassert(numChannels > 0);
 
-    // Prepare DSP components.
+    
     customReverb.prepare(sampleRate, numChannels);
     overlayChain.setActiveFilter(std::make_unique<VileFilter>());
-    overlayChain.setDrive(10.0f); // Fixed drive value.
+    overlayChain.setDrive(10.0f); 
 }
 void DSPWrapper::processBlock(juce::AudioBuffer<float>& buffer)
 {
@@ -31,13 +31,13 @@ void DSPWrapper::processBlock(juce::AudioBuffer<float>& buffer)
     customReverb.setWidth(lastWidth);
     customReverb.setSize(lastSize);
 
-    // Only process CustomReverb if mix > 0
+    // only process if mix > 0
     if (lastMix > 0.0f)
     {
-        // Process reverb, ensuring width and size are applied
+        // process reverb, ensuring width and size are applied
         customReverb.processBlock(wetBuffer, lastDecay, lastMix);
 
-        // Optional: Apply overlay processing only if overlayOn is enabled
+        // apply overlay processing only if overlayOn is enabled
         if (overlayOn)
         {
             for (int channel = 0; channel < numChannels; ++channel)

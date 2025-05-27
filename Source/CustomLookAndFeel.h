@@ -16,6 +16,8 @@ public:
 
     juce::Font getValueFont() const { return valueFont; }
     juce::Font getcustomTypeface() const { return customTypeface; }
+    
+
 
 private:
     // stores textures as images 
@@ -26,6 +28,7 @@ private:
 
     juce::Typeface::Ptr customTypeface;
     juce::Font valueFont;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CustomLookAndFeel)
 };

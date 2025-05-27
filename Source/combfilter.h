@@ -26,64 +26,58 @@ public:
         reset();
     }
 
-    float CombFilter::processSample(float inputSample, float feedbackGain, float sizeFactor, bool isLeftChannel, float width, float mix)
+    float CombFilter::processSample(float inputSample, float feedbackGain, float sizeFactor,
+        bool isLeftChannel, float width, float mix)
     {
-        // clamp mix
         mix = juce::jlimit(0.0f, 1.0f, mix);
-
-        
         float drySignal = inputSample;
 
-        // decay
+        
         float delayedFeedback = decayDelayLine.popSample(0);
         constexpr float cutoffFrequency = 2000.0f;
         float alpha = cutoffFrequency / (cutoffFrequency + sampleRate / (2.0f * MathConstants<float>::pi));
         delayedFeedback = alpha * delayedFeedback + (1.0f - alpha) * lastDecaySample;
-
-        // attenuation to avoid runaway gain.
-        delayedFeedback *= 0.99f;
+        
+        delayedFeedback *= 0.9995f;
         lastDecaySample = delayedFeedback;
 
-        float decaySignal = (feedbackGain > 0.0f)
-            ? inputSample + feedbackGain * delayedFeedback
-            : inputSample;
+        
+        float decayTail = (feedbackGain > 0.0f) ? (feedbackGain * delayedFeedback * 1.1f) : 0.0f;
+        
+        float decaySignal = inputSample * 0.1f + decayTail;
 
-        // spatial
+        
         float spatialEcho = spatialDelayLine.popSample(0);
         constexpr float spatialFeedback = 0.45f;
         float spatialSignal = inputSample + spatialFeedback * spatialEcho;
-
-        //  attenuation to stabilize
         spatialSignal *= 0.99f;
         spatialDelayLine.pushSample(0, spatialSignal);
-
         spatialEcho = (spatialEcho + lastSpatialSample) * 0.5f;
         lastSpatialSample = spatialEcho;
 
-        decaySignal += 0.45f * spatialEcho;
+        
+        decaySignal += 0.2f * spatialEcho;
         decayDelayLine.pushSample(0, decaySignal);
 
-        // haas effect
-        constexpr float maxWidthDelayTime = 0.02f; // 20 ms max delay at width = 1
+        
+        constexpr float maxWidthDelayTime = 0.02f; 
         float delaySamples = width * (maxWidthDelayTime * sampleRate);
         widthDelayLine.setDelay(delaySamples);
-
         float delayedRight = widthDelayLine.popSample(0);
         widthDelayLine.pushSample(0, decaySignal);
 
         float leftOutput = decaySignal;
         float rightOutput = delayedRight;
-
         constexpr float spatialBlendFactor = 0.2f;
         leftOutput += spatialBlendFactor * spatialEcho;
         rightOutput += spatialBlendFactor * spatialEcho;
-
         constexpr float rightCorrectionFactor = 0.97f;
         rightOutput *= rightCorrectionFactor;
 
         float wetOutput = isLeftChannel ? leftOutput : rightOutput;
+        
+        wetOutput *= 0.75f;
 
-        //wet dry mix
         return (1.0f - mix) * drySignal + mix * wetOutput;
     }
 
@@ -96,7 +90,7 @@ public:
             static_cast<float>(spatialDelayLine.getMaximumDelayInSamples()),
             static_cast<float>(spatialSamples)));
 
-        float decayMultiplier = jmap(newSize, 0.0f, 1.0f, 1.0f, 1.25f);
+        float decayMultiplier = jmap(newSize, 0.0f, 1.0f, 1.0f, 1.5f);
         float decayDelayMs = baseDelayMs * decayMultiplier;
         int decaySamples = static_cast<int>((decayDelayMs * sampleRate) / 1000.0f);
         decayDelayLine.setDelay(jlimit(1.0f,

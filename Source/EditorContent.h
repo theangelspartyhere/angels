@@ -5,7 +5,7 @@
 
 #include "FilterButton.h"
 #include "CustomLookAndFeel.h"
-
+#include "FrequencyAnalyzer.h"
 // forward declaration 
 class PluginEditor;
 
@@ -23,12 +23,12 @@ public:
 
 private:
 
-
+    FrequencyAnalyzer frequencyAnalyzer;
 
     juce::AudioProcessorValueTreeState& apvts;
     PluginEditor& pluginEditor;  // reference to plugineditor
 
-    
+
     juce::Slider sizeSlider;
     juce::Slider dampSlider;
     juce::Slider widthSlider;
@@ -40,7 +40,7 @@ private:
     juce::AudioProcessorValueTreeState::SliderAttachment widthAttachment;
     juce::AudioProcessorValueTreeState::SliderAttachment mixAttachment;
 
-  
+
 
 
     juce::Label sizeLabel;
@@ -48,10 +48,10 @@ private:
     juce::Label widthLabel;
     juce::Label mixLabel;
 
-    
-    FilterButton filterButton;
 
-    
+    //FilterButton filterButton;
+
+
 
     //OverlayFilter Slider
    // OverlayFilter& overlayFilter; // reference to the overlayfilter
@@ -59,6 +59,13 @@ private:
     juce::Label overlayBlendLabel;                  // label for the slider
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> overlayBlendAttachment;  // param attachment
     
+    juce::Label sizeTitleLabel, dampTitleLabel, widthTitleLabel, mixTitleLabel; 
+
+    
+    juce::Label sizeValueLabel, dampValueLabel, widthValueLabel, mixValueLabel; 
+
+    
+    juce::Label overlayBlendTitleLabel, overlayBlendValueLabel;
 
     //declare
     //std::unique_ptr<CustomLookAndFeel> customLookAndFeel;

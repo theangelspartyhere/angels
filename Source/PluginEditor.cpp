@@ -10,13 +10,13 @@ PluginEditor::PluginEditor(PluginProcessor& p, juce::UndoManager& um)
     openGLComponent(),
     displayOverlay()
 {
-    setSize(350, 600);
-    
+    setSize(350, 500);
+
 
     // components in the  layering order
-    addAndMakeVisible(openGLComponent);  
-    addAndMakeVisible(editorContent);   
-    
+    addAndMakeVisible(openGLComponent);
+    addAndMakeVisible(editorContent);
+
 
     //setSize(defaultWidth, defaultHeight); // Set the initial size
 }
@@ -39,7 +39,8 @@ void PluginEditor::paint(juce::Graphics& g)
         g.fillAll(juce::Colours::black);
     }
 
-    
+
+
 
     auto area = getLocalBounds().toFloat();
     area.removeFromTop(30);
@@ -47,8 +48,7 @@ void PluginEditor::paint(juce::Graphics& g)
     // make the rounded rectangle smaller 
     auto cutoutBounds = area.removeFromTop(150).withTrimmedLeft(75).withTrimmedRight(75);
 
-    g.setColour(juce::Colours::black);
-    g.fillRoundedRectangle(cutoutBounds.expanded(10.0f), 20.0f); // Keep the corner radius
+   
 }
 
 void PluginEditor::resized()
@@ -66,7 +66,7 @@ void PluginEditor::resized()
     // remaining space for sliders and controls
     editorContent.setBounds(area);
 
-    
+
 
 }
 
@@ -105,5 +105,5 @@ void PluginEditor::updateWidthValue(float newWidth)
 void PluginEditor::updateCubeColor(juce::Colour newColor)
 {
     openGLComponent.setCubeColor(newColor);
-    
+
 }

@@ -35,7 +35,7 @@ private:
     static constexpr auto defaultWidth{ 350 };
     static constexpr auto defaultHeight{ 600 };
 
- 
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginEditor)
 };

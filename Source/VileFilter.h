@@ -14,7 +14,7 @@ public:
         float scrape = distorted * std::sin(inputSample * 20.0f); // adjust rate for texture
 
         // resonance so a feedback loop for metallic texture
-        static float lastSample = 0.0f;
+        float lastSample = 0.0f;
         float resonance = (distorted + lastSample) * 0.5f; // feedback resonance
         lastSample = distorted;
 
@@ -24,7 +24,7 @@ public:
         // normalize the output to reduce loudness
         processed *= 0.3f; // scale down amplitude
 
-        // final dry/wet blending
+        
         return (1.0f - mix) * inputSample + mix * processed;
     }
 };

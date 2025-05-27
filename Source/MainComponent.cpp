@@ -14,8 +14,8 @@ MainComponent::MainComponent()
     widthValue(0.0f),
     greenCubeAlpha(0.5f) // default alpha value for the green cube
 {
-    setSize(350, 600);
-    setOpaque(false);  // background is transparent
+    setSize(300, 600);
+    setOpaque(true);  // background is transparent
     setVisible(true);
 
 
@@ -75,7 +75,7 @@ void MainComponent::initialise()
     // depth testing and set clear color
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);  // accept fragments closer to the camera
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // clear background to black
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // White background  // clear background to black
 
     // blending for transparency
     glEnable(GL_BLEND);
@@ -112,7 +112,7 @@ void MainComponent::initialise()
     out vec4 FragColor;
     layout(location = 1) out vec2 MotionVector;
 
-    uniform vec3 uColor;
+    uniform vec3 uColor = vec3(1.0, 1.0, 1.0); // Black cube
     uniform float uAlpha; // Alpha value for transparency
 
     void main()
@@ -186,7 +186,7 @@ void MainComponent::initialise()
     {
         vec2 motion = texture(uMotionTexture, vTexCoord).xy;
 
-        int samples = 16;
+        int samples = 1;
         vec4 color = vec4(0.0);
         float totalWeight = 0.0;
 
@@ -437,9 +437,13 @@ void MainComponent::initialise()
 
 void MainComponent::render()
 {
+
+
+
+
     jassert(juce::OpenGLHelpers::isContextActive());
 
-
+  
     //cube roatation
    // rotation angles for a slow spin
     rotationX += 0.1f;  
@@ -488,16 +492,15 @@ void MainComponent::render()
         0.0f, 0.0f, -10.0f, 1.0f
     );
 
-    // scaling 
-        //  common adjusted base size. 
-//  remaps cubeSize from [1.0, 2.0] to [1.0, 1.6] if using a factor of 0.6.
+    
+
     float adjustedBaseSize = 1.0f + ((cubeSize - 1.0f) * 0.6f);
-    // redcube uses cubeSize from the size slider/dial (unaffected by widthValue)
+    
     float cubeSize1 = cubeSize;
 
     // green cube scales based on widthValue
-    float minScale = 0.5f; // Minimum scale factor
-    float maxScale = 1.5f; // Maximum scale factor
+    float minScale = 0.7f; 
+    float maxScale = 1.4f; 
     float greenScaleFactor = minScale + (maxScale - minScale) * widthValue;
     float whiteCubeSize = adjustedBaseSize * greenScaleFactor;
 
@@ -509,6 +512,9 @@ void MainComponent::render()
     // bind and clear the scene framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
     glViewport(0, 0, getWidth(), getHeight());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set background to white
+
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     cubeShaderProgram->use();
@@ -518,7 +524,7 @@ void MainComponent::render()
         cubeProjectionMatrixUniform->setMatrix4(projectionMatrix.mat, 1, false);
 
     // line width
-    glLineWidth(5.0f);
+    glLineWidth(5.7f);
 
     //render red cube 
     {
@@ -556,7 +562,7 @@ void MainComponent::render()
     {
         // color
         if (cubeColorUniform != nullptr)
-            cubeColorUniform->set(1.0f, 1.0f, 1.0f);  // green color CHANGED TO WHITE
+            cubeColorUniform->set(1.0f, 1.0f, 1.0f);  // Black cube  // green color CHANGED TO WHITE
 
         // set alpha to make the cube less visible
         if (cubeAlphaUniform != nullptr)
@@ -605,6 +611,9 @@ void MainComponent::render()
     // bind framebuffer and clear
     glBindFramebuffer(GL_FRAMEBUFFER, blurFBO);
     glViewport(0, 0, getWidth(), getHeight());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // background to white
+
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw the quad
@@ -632,6 +641,9 @@ void MainComponent::render()
 
     // clear the default framebuffer
     glViewport(0, 0, getWidth(), getHeight());
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // background to white
+
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw the quad
