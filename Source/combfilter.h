@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <JuceHeader.h>
 using namespace juce;
 
@@ -12,8 +12,8 @@ public:
         sampleRate = spec.sampleRate;
         delayInMs = jlimit(1.0f, 50.0f, delayInMs);
 
-        int maxDecaySamples = static_cast<int>((50.0f * sampleRate) / 1000.0f);
-        int maxSpatialSamples = static_cast<int>((400.0f * sampleRate) / 1000.0f);
+        int maxDecaySamples = static_cast<int>((150.0f * sampleRate) / 1000.0f);
+        int maxSpatialSamples = static_cast<int>((600.0f * sampleRate) / 1000.0f);
 
         decayDelayLine = dsp::DelayLine<float>(maxDecaySamples);
         spatialDelayLine = dsp::DelayLine<float>(maxSpatialSamples);
@@ -23,44 +23,64 @@ public:
         spatialDelayLine.prepare(spec);
         widthDelayLine.prepare(spec);
 
+       
+        highPassDecayFilter.setCoefficients(juce::IIRCoefficients::makeHighPass(sampleRate, decayCutoffFrequency, 0.707f));
+
         reset();
     }
-
-    float CombFilter::processSample(float inputSample, float feedbackGain, float sizeFactor,
+    float processSample(float inputSample, float feedbackGain, float sizeFactor,
         bool isLeftChannel, float width, float mix)
     {
+        if (mix < 0.001f)
+            return inputSample;
+
         mix = juce::jlimit(0.0f, 1.0f, mix);
         float drySignal = inputSample;
 
         
-        float delayedFeedback = decayDelayLine.popSample(0);
-        constexpr float cutoffFrequency = 2000.0f;
-        float alpha = cutoffFrequency / (cutoffFrequency + sampleRate / (2.0f * MathConstants<float>::pi));
-        delayedFeedback = alpha * delayedFeedback + (1.0f - alpha) * lastDecaySample;
+        float decayInput = highPassDecayFilter.processSingleSampleRaw(inputSample);
+
         
+        float delayedFeedback = decayDelayLine.popSample(0);
+        constexpr float combCutoff = 2000.0f;
+        float alpha = combCutoff / (combCutoff + sampleRate / (2.0f * juce::MathConstants<float>::pi));
+        delayedFeedback = alpha * delayedFeedback + (1.0f - alpha) * lastDecaySample;
         delayedFeedback *= 0.9995f;
         lastDecaySample = delayedFeedback;
 
+       
+        if (std::abs(sizeFactor - lastSizeFactor) > 0.001f)
+        {
+            float sizeMapped = juce::jmap(sizeFactor, 0.0f, 1.0f, 0.5f, 2.5f);
+            int maxDelaySamples = decayDelayLine.getMaximumDelayInSamples();
+            int newDelay = juce::jlimit(1, maxDelaySamples,
+                static_cast<int>(sizeMapped * sampleRate / 1000.0f));
+            decayDelayLine.setDelay(newDelay);
+            lastSizeFactor = sizeFactor;
+        }
+
         
-        float decayTail = (feedbackGain > 0.0f) ? (feedbackGain * delayedFeedback * 1.1f) : 0.0f;
+        float decayTail = (feedbackGain > 0.0f)
+            ? feedbackGain * delayedFeedback * 1.1f
+            : 0.0f;
         
-        float decaySignal = inputSample * 0.1f + decayTail;
+        float decaySignal = decayInput * 0.1f + decayTail;
 
         
         float spatialEcho = spatialDelayLine.popSample(0);
-        constexpr float spatialFeedback = 0.45f;
-        float spatialSignal = inputSample + spatialFeedback * spatialEcho;
+        
+        float spatialSignal = decayInput + 0.45f * spatialEcho;
         spatialSignal *= 0.99f;
         spatialDelayLine.pushSample(0, spatialSignal);
         spatialEcho = (spatialEcho + lastSpatialSample) * 0.5f;
         lastSpatialSample = spatialEcho;
 
-        
+       
         decaySignal += 0.2f * spatialEcho;
         decayDelayLine.pushSample(0, decaySignal);
 
         
-        constexpr float maxWidthDelayTime = 0.02f; 
+        constexpr float maxWidthDelayTime = 0.02f;
         float delaySamples = width * (maxWidthDelayTime * sampleRate);
         widthDelayLine.setDelay(delaySamples);
         float delayedRight = widthDelayLine.popSample(0);
@@ -68,17 +88,17 @@ public:
 
         float leftOutput = decaySignal;
         float rightOutput = delayedRight;
-        constexpr float spatialBlendFactor = 0.2f;
+        constexpr float spatialBlendFactor = 0.20f;
         leftOutput += spatialBlendFactor * spatialEcho;
         rightOutput += spatialBlendFactor * spatialEcho;
         constexpr float rightCorrectionFactor = 0.97f;
         rightOutput *= rightCorrectionFactor;
 
         float wetOutput = isLeftChannel ? leftOutput : rightOutput;
-        
-        wetOutput *= 0.75f;
 
-        return (1.0f - mix) * drySignal + mix * wetOutput;
+       
+        float out = (1.0f - mix) * drySignal + mix * wetOutput;
+        return out;
     }
 
     void setSize(float newSize, float baseDelayMs)
@@ -111,6 +131,12 @@ private:
     double sampleRate = 44100.0;
     float lastDecaySample = 0.0f;
     float lastSpatialSample = 0.0f;
+
+    
+    float lastSizeFactor = -1.0f;  
+    
+    juce::IIRFilter highPassDecayFilter;
+    float decayCutoffFrequency = 120.0f; 
 
     dsp::DelayLine<float> decayDelayLine{ 44100 };
     dsp::DelayLine<float> spatialDelayLine{ 44100 };

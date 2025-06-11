@@ -47,50 +47,53 @@ public:
         }
     }
 
-    float processSample(float inputSample, float decay, bool isLeftChannel, float mix, int sampleIndex)
+    float CustomReverb::processSample(float inputSample, float decay, bool isLeftChannel, float mix, int sampleIndex)
     {
-        decay = juce::jlimit(0.0f, 1.0f, decay);
+        if (mix < 0.001f)
+            return inputSample;
 
-        float combSum = 0.0f;
-        float normalizedInput = juce::jlimit(-0.5f, 0.5f, inputSample);
+        float drySignal = inputSample;
 
-        if (decay <= 0.01f && sizeParameter <= 0.1f && widthParameter <= 0.1f) {
-            return normalizedInput;
-        }
-
+        
         float noiseFilterFreq = juce::jmap(decay, 0.0f, 1.0f, 20.0f, 100.0f);
         float qFactor = 1.2f;
         juce::IIRFilter highPassFilter;
         highPassFilter.setCoefficients(juce::IIRCoefficients::makeHighPass(44100.0f, noiseFilterFreq, qFactor));
+        float filteredInput = highPassFilter.processSingleSampleRaw(inputSample);
 
-        float filteredInput = highPassFilter.processSingleSampleRaw(normalizedInput);
+        
         float decayEffect = juce::jmap(decay, 0.0f, 1.0f, 0.2f, 0.75f);
         float decayInput = filteredInput * decayEffect;
 
+       
         float adjustedSize = juce::jmap(sizeParameter, 0.0f, 1.0f, 0.7f, 1.3f);
-        float adjustedWidth = juce::jmap(widthParameter, 0.0f, 1.0f, 0.85f, 1.15f);
         decayInput *= adjustedSize;
 
-        if (decay > 0.001f || sizeParameter > 0.1f || widthParameter > 0.1f) {
-            for (size_t i = 0; i < combFilters.size(); ++i) {
-                combSum += combFilters[i].processSample(decayInput, 0.3f, sizeParameter, isLeftChannel, widthParameter, mix);
-            }
+        
+        float combSum = 0.0f;
+        for (size_t i = 0; i < combFilters.size(); ++i)
+        {
+            
+            combSum += combFilters[i].processSample(decayInput, 0.3f, sizeParameter, isLeftChannel, widthParameter, mix);
         }
 
+        
         combSum = juce::jlimit(-0.5f, 0.5f, combSum);
 
+       
         float allPassOut = combSum;
-        for (size_t i = 0; i < allPassFilters.size(); ++i) {
+        for (size_t i = 0; i < allPassFilters.size(); ++i)
+        {
             allPassOut = allPassFilters[i].processSample(allPassOut, 0.6f);
         }
 
-        allPassOut *= adjustedWidth;
-        allPassOut *= 0.95f;
+        
 
-        float wetMix = juce::jmap(mix, 0.0f, 1.0f, 0.3f, 0.85f);
-        allPassOut = (combSum * wetMix) + (normalizedInput * (1.0f - wetMix));
+        
+        allPassOut *= juce::jmap(mix, 0.0f, 1.0f, 0.85f, 1.15f);
 
-        return allPassOut;
+        float out = drySignal + allPassOut;
+        return out;
     }
 
     void processBlock(juce::AudioBuffer<float>& buffer, float decay, float mix)

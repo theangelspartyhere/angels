@@ -31,12 +31,12 @@ public:
 
     float processSample(float inputSample, float gain)
     {
-        gain = juce::jlimit(0.0f, 0.7f, gain); // allow higher gains for more audible effects
-        float delayed = delayLine.popSample(0); // fetch delayed signal
-        float output = -gain * inputSample + delayed; // calculate output
-        float feedback = inputSample + gain * output; // feedback calculation
-        delayLine.pushSample(0, feedback); // store feedback in the delay line
-        return output; 
+        gain = juce::jlimit(0.0f, 0.6f, gain); // Slightly reduce max gain to prevent excessive resonance
+        float delayed = delayLine.popSample(0);
+        float output = -gain * inputSample + delayed;
+        float feedback = inputSample + (gain * output * 0.8f); // Less aggressive feedback shaping
+        delayLine.pushSample(0, feedback);
+        return output;
     }
 
     void reset()
